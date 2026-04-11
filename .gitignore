@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+
+# Ephemeral runtime state
+agent_state.json
+agent_log.txt
+
+# Yardsale work dir is cloned fresh each run
+.yardsale-workdir/
+
+.DS_Store
