@@ -733,8 +733,15 @@ def run_task(
                 tools=TOOL_DEFINITIONS,
                 messages=messages,
             )
-        except anthropic.APIError as exc:
-            log(f"claude API error: {exc}")
+        except Exception as exc:  # noqa: BLE001 — any failure must stop the run
+            log(f"claude API call failed: {type(exc).__name__}: {exc}")
+            state["status"] = "error"
+            state["blocked_reason"] = "api_error"
+            save_state(state)
+            slack_send(
+                f":rotating_light: Yardsale agent stopped on *{task['title']}* — "
+                f"Claude API call failed ({type(exc).__name__}): {exc}"
+            )
             return "api_error"
 
         state["cost_today_usd"] = round(
@@ -883,12 +890,15 @@ def main() -> int:
             return 1
 
     if args.once:
-        run_once(args.dry_run, args.cost_cap)
-        return 0
+        status = run_once(args.dry_run, args.cost_cap)
+        return 1 if status == "api_error" else 0
 
     deadline = time.monotonic() + args.hours * 3600
     while time.monotonic() < deadline:
         status = run_once(args.dry_run, args.cost_cap)
+        if status == "api_error":
+            log("claude API error — stopping run (Slack notified from run_task)")
+            return 1
         if status == "blocked":
             log(f"pausing {SLACK_POLL_INTERVAL_SEC}s waiting for user input")
             time.sleep(SLACK_POLL_INTERVAL_SEC)
