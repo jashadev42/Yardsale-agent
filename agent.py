@@ -155,6 +155,21 @@ def publish_dashboard_state(state: dict[str, Any]) -> None:
         except requests.RequestException as exc:
             log(f"dashboard webhook failed: {exc}")
 
+    gist_id = os.getenv("DASHBOARD_GIST_ID")
+    if gist_id and GITHUB_TOKEN:
+        try:
+            requests.patch(
+                f"https://api.github.com/gists/{gist_id}",
+                headers={
+                    "Authorization": f"Bearer {GITHUB_TOKEN}",
+                    "Accept": "application/vnd.github+json",
+                },
+                json={"files": {"agent_state.json": {"content": json.dumps(state, indent=2)}}},
+                timeout=10,
+            )
+        except requests.RequestException as exc:
+            log(f"dashboard gist sync failed: {exc}")
+
 
 # ---------------------------------------------------------------------------
 # Git / work-dir management
