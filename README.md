@@ -1,6 +1,6 @@
 # Yardsale Agent
 
-Autonomous coding agent that works on [Yardsale](https://github.com/jashadev42/yardsale) during Jasha's work hours (10AM–4PM daily). Reads tasks from `AGENT_TASKS.md`, clones Yardsale into a work directory, edits it through Claude, commits changes to a dated `agent/YYYY-MM-DD` branch, and reports blockers via Slack.
+Autonomous coding agent that works on [Yardsale](https://github.com/jashadev42/yardsale). Reads tasks from `AGENT_TASKS.md`, clones Yardsale into a work directory, edits it through Claude, commits changes to a dated `agent/YYYY-MM-DD` branch, and reports blockers via Slack.
 
 **This is a separate repo from Yardsale itself.** On each run the agent clones (or pulls) Yardsale into `.yardsale-workdir/`, makes edits there, and pushes commits back to GitHub for Jasha to review before merging.
 
